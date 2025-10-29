@@ -10,21 +10,24 @@ export class SocketService implements OnGatewayConnection,OnGatewayDisconnect{
   server:Server;
 
 
-  handleConnection(client:Socket){
-  client.on('registerClient', (clientId: string) => {
-    client.join(clientId);
-    console.log(`Client registered to room: ${clientId}`);
+handleConnection(client: Socket){
+  console.log("Client conneted: ",client.id);
+  client.on('registerClient', (clientName: string) => {
+    client.join(clientName);
+    console.log(`Client ${client.id} registered to room: ${clientName}`);
+    client.emit('registered',{clientName,socketId:client.id});
   });
-  }
+}
     handleDisconnect(client: Socket) {
+      console.log(`Client ${client.id} disconnected`);
     console.log('Socket disconnected', client.id);
     
   }
-
  
-  sendJobNotification(clientId:string,payload:any){
-
-      this.server.to(clientId).emit('jobCompleted', payload);
+  sendJobNotification(clientName:string,payload:any){
+    console.log(`Sending notification to room: ${clientName}`, payload);
+    this.server.to(clientName).emit('jobCompleted', payload);
+    console.log(`Notification sent to room: ${clientName}`);
     
   }
   
